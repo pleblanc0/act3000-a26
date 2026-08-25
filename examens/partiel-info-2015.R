@@ -88,14 +88,14 @@ Fs(100)
 
 rm(list = ls())
 
-n <- 2^10; k <- 0:(n - 1); e <- exp(2i * pi * k/n)
+n <- 2^10; k <- 0:(n - 1); e <- exp(-2i * pi * k/n)
 a1 <- 1.2; a2 <- 1.9; a3 <- 2.5; a12 <- 0.6; a123 <- 0.2
 
 ## b)
 lamN <- a1 + a2 + a3 + a12 + a123
 fgpC <- function(t) ((a1 + a2 + a3)/lamN * t + a12/lamN * t^2 + a123/lamN * t^3)
 
-fc <- Re(fft(sapply(e, fgpC)))/n
+fc <- Re(fft(sapply(e, fgpC), TRUE))/n
 fc[1:3 + 1]
 
 ## c)
@@ -104,7 +104,7 @@ fgpN <- function(t1, t2, t3) exp(
     a12 * (t1 * t2 - 1) + a123 * (t1 * t2 * t3 - 1)
 )
 
-fn <- Re(fft(sapply(e, function(t) fgpN(t, t, t))))/n
+fn <- Re(fft(sapply(e, function(t) fgpN(t, t, t)), TRUE))/n
 fn[0:10 + 1]
 
 ## d)
@@ -118,7 +118,7 @@ sapply(c(0.1 * 5:9, 0.95, 0.99, 0.995, 0.999, 0.9999), VaR)
 
 rm(list = ls())
 
-n <- 2^10; k <- 0:(n - 1); e <- exp(2i * pi * k/n)
+n <- 2^10; k <- 0:(n - 1); e <- exp(-2i * pi * k/n)
 p00 <- 0.6; p01 <- p10 <- 0.10; p11 <- 0.20; m <- 20
 
 ## a)
@@ -128,5 +128,5 @@ fgpN <- function(t) fgpM1M2(t^2, t^3)
 ## c) à faire
 
 ## d)
-fn <- Re(fft(sapply(e, fgpN)))/n
+fn <- Re(fft(fgpN(e), TRUE))/n
 fn[c(0, 5, 20) + 1]

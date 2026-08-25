@@ -84,7 +84,7 @@ BM(0.999)
 
 rm(list = ls())
 
-n <- 2^14; k <- 0:(n - 1); e <- exp(2i * pi * k/n)
+n <- 2^14; k <- 0:(n - 1); e <- exp(-2i * pi * k/n)
 g0 <- 0.2; al <- c(0.8, 0.3); m <- 10; q <- c(0.2, 0.3)
 
 ## d)
@@ -97,7 +97,7 @@ fgpM1M2 <- function(t1, t2) exp(
 fgpS <- function(t) fgpM1M2(fgpB1(t), fgpB2(t))
 
 # i)
-fs <- Re(fft(sapply(e, fgpS)))/n
+fs <- Re(fft(sapply(e, fgpS), TRUE))/n
 fs[c(0, 1, 5, 10) + 1]
 
 # ii)
@@ -132,7 +132,7 @@ Fs(100)
 
 rm(list = ls())
 
-n <- 2^14; k <- 0:(n - 1); e <- exp(2i * pi * k/n)
+n <- 2^14; k <- 0:(n - 1); e <- exp(-2i * pi * k/n)
 lam <- c(-log(0.01)/3, -log(0.01)/2); lamN <- sum(lam); q <- c(0.2, 0.4)
 
 ## b)
@@ -140,7 +140,7 @@ lam <- c(-log(0.01)/3, -log(0.01)/2); lamN <- sum(lam); q <- c(0.2, 0.4)
 
 ## c)
 fgpC <- function(t) sum(lam/lamN * q * t/(1 - (1 - q) * t))
-fc <- Re(fft(sapply(e, fgpC)))/n
+fc <- Re(fft(sapply(e, fgpC), TRUE))/n
 fc[c(1, 2) + 1]
 
 ## d)
@@ -148,7 +148,7 @@ fc[c(1, 2) + 1]
 
 ## e)
 fgpS <- function(t) exp(4 * lamN * (fgpC(t) - 1))
-fs <- Re(fft(sapply(e, fgpS)))/n
+fs <- Re(fft(sapply(e, fgpS), TRUE))/n
 fs[c(50, 60, 70) + 1]
 
 Fs <- cumsum(fs)

@@ -10,18 +10,22 @@
 
 rm(list = ls())
 
-n <- 2^10; k <- 0:(n - 1); e <- exp(2i * pi * k/n)
+n <- 2^10; k <- 0:(n - 1); e <- exp(-2i * pi * k/n)
 r <- 1.5; q <- 0.4; v <- 1:3; p <- c(0.2, 0.5, 0.3)
 
 fgp <- function(t) (q/(1 - (1 - q) * sum(p * t^v)))^r
 
 ## b)
-fy <- Re(fft(sapply(e, fgp)))/n
+fy <- Re(fft(sapply(e, fgp), TRUE))/n
 fy[c(0, 1, 2, 10)  + 1]
 
 ## c)
 EspY <- sum(k * fy)
 EspY * 100
+
+# en reconnaissant la fgp
+EspY.alt <- r * (1 - q)/q * sum(p * v)
+EspY.alt * 100
 
 
 ###
@@ -43,13 +47,13 @@ pexp(1, lam, lower = FALSE)
 
 rm(list = ls())
 
-n <- 2^10; k <- 0:(n - 1); e <- exp(2i * pi * k/n)
+n <- 2^10; k <- 0:(n - 1); e <- exp(-2i * pi * k/n)
 m <- 20; v <- 0:4; p <- c(0.4, 0.1, 0.25, 0.15, 0.10)
 
 fgp <- function(t) sum(p * t^v)^m
 
 # i)
-fs <- Re(fft(sapply(e, fgp)))/n
+fs <- Re(fft(sapply(e, fgp), TRUE))/n
 fs[c(44, 45) + 1]
 
 # ii)

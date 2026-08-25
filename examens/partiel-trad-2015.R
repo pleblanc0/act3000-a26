@@ -10,7 +10,7 @@
 
 rm(list = ls())
 
-n <- 2^6; k <- 0:(n - 1); e <- exp(2i * pi * k/n)
+n <- 2^6; k <- 0:(n - 1); e <- exp(-2i * pi * k/n)
 
 fgp <- function(t1, t2) (
     0.6 + 0.1 * t2^5 + 0.05 * t1 * t2^4 + 0.05 * t1^2 * t2^3 +
@@ -18,17 +18,18 @@ fgp <- function(t1, t2) (
 )
 
 ## a)
-fm1m2 <- Re(fft(outer(e, e, fgp)))/n^2
+fm1m2 <- Re(fft(outer(e, e, fgp), TRUE))/n^2
 
 ## b)
-fm1 <- Re(fft(sapply(e, function(t) fgp(t, 1))))/n
-fm2 <- Re(fft(sapply(e, function(t) fgp(1, t))))/n
+fm1 <- Re(fft(sapply(e, function(t) fgp(t, 1)), TRUE))/n
+fm2 <- Re(fft(sapply(e, function(t) fgp(1, t)), TRUE))/n
 
 ## c)
 CovM1M2 <- sum(outer(k, k) * fm1m2) - sum(k * fm1) * sum(k * fm2)
+CovM1M2
 
 ## d)
-fn <- Re(fft(sapply(e, function(t) fgp(t, t))))/n
+fn <- Re(fft(sapply(e, function(t) fgp(t, t)), TRUE))/n
 
 
 ###
@@ -96,7 +97,7 @@ Fs.anti(40)
 
 rm(list = ls())
 
-n <- 2^10; k <- 0:(n - 1); e <- exp(2i * pi * k/n)
+n <- 2^10; k <- 0:(n - 1); e <- exp(-2i * pi * k/n)
 a0 <- 0.2; lam <- c(0.3, 0.5)
 
 fgpM12 <- function(t1, t2) exp(
@@ -105,11 +106,11 @@ fgpM12 <- function(t1, t2) exp(
 fgpX12 <- function(t1, t2) fgpM12(0.6 * t1 + 0.4 * t1^2, 0.7 * t2 + 0.3 * t2^2)
 
 ## a)
-fx12 <- Re(fft(outer(e, e, fgpX12)))/n^2
+fx12 <- Re(fft(outer(e, e, fgpX12), TRUE))/n^2
 fx12[1 + 1, 1 + 1]
 
 ## c)
-fs <- Re(fft(sapply(e, function(t) fgpX12(t, t))))/n
+fs <- Re(fft(sapply(e, function(t) fgpX12(t, t)), TRUE))/n
 fs[0:5 + 1]
 
 ## d)
@@ -122,12 +123,12 @@ sum(pmin(k, 2) * fs) * 100
 
 rm(list = ls())
 
-n <- 2^10; k <- 0:(n - 1); e <- exp(2i * pi * k/n)
+n <- 2^10; k <- 0:(n - 1); e <- exp(-2i * pi * k/n)
 m <- 2; q <- 3/7; i <- 1:2; w <- c(0.6, 0.4); be <- 1/10
 
 ## b)
 fgp <- function(t) (1 - q + q * sum(w * t^i))^m
-ck <- Re(fft(sapply(e, fgp)))/n
+ck <- Re(fft(sapply(e, fgp), TRUE))/n
 ck[0:4 + 1]
 
 ## c)
@@ -144,9 +145,9 @@ EspTr(20)
 
 rm(list = ls())
 
-n <- 2^10; k <- 0:(n - 1); e <- exp(2i * pi * k/n)
+n <- 2^10; k <- 0:(n - 1); e <- exp(-2i * pi * k/n)
 fgp <- function(t) (1 - (t - 1))^(-2) * (1 - 2 * (t - 1))^(-1)
 
 ## d)
-fn <- Re(fft(sapply(e, fgp)))/n
+fn <- Re(fft(sapply(e, fgp), TRUE))/n
 fn[0:2 + 1]

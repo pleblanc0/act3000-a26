@@ -31,22 +31,22 @@ rm(list = ls())
 
 rm(list = ls())
 
-n <- 2^10; k <- 0:(n - 1); e <- exp(2i * pi * k/n)
+n <- 2^10; k <- 0:(n - 1); e <- exp(-2i * pi * k/n)
 fgp <- function(t1, t2) (
     0.4 + 0.3 * (0.9 + 0.1 * t1)^2 + 0.2 * (0.8 + 0.2 * t2)^2 +
     0.1 * (0.9 + 0.1 * t1)^2 * (0.8 + 0.2 * t2)^2
 )
 
 ## a)
-fx1 <- Re(fft(sapply(e, function(t) fgp(t, 1))))/n
+fx1 <- Re(fft(sapply(e, function(t) fgp(t, 1)), TRUE))/n
 fx1[0:2 + 1]
 
 ## b)
-fx2 <- Re(fft(sapply(e, function(t) fgp(1, t))))/n
+fx2 <- Re(fft(sapply(e, function(t) fgp(1, t)), TRUE))/n
 fx2[0:2 + 1]
 
 ## c)
-fs <- Re(fft(sapply(e, function(t) fgp(t, t))))/n
+fs <- Re(fft(sapply(e, function(t) fgp(t, t)), TRUE))/n
 fs[0:4 + 1]
 
 
@@ -76,17 +76,17 @@ TVaRS(0.99)
 
 rm(list = ls())
 
-n <- 2^10; k <- 0:(n - 1); e <- exp(2i * pi * k/n)
+n <- 2^10; k <- 0:(n - 1); e <- exp(-2i * pi * k/n)
 p <- 0.4; r <- 0.2; q <- 1/2; gam <- 1/4
 
 ## c)
 fgpY <- function(t) (q/(1 - (1 - q) * gam * t/(1 - (1 - gam) * t)))^r
-fy <- Re(fft(sapply(e, fgpY)))/n
+fy <- Re(fft(sapply(e, fgpY), TRUE))/n
 fy[c(0, 3) + 1]
 
 ## d)
 fgpX <- function(t) 1 - p + p * fgpY(t)
-fx <- Re(fft(sapply(e, fgpX)))/n
+fx <- Re(fft(sapply(e, fgpX), TRUE))/n
 fx[c(0, 3) + 1]
 
 

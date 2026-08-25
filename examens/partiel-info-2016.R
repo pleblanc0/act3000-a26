@@ -45,7 +45,7 @@ TVaR(0.99)
 
 rm(list = ls())
 
-n <- 2^14; k <- 0:(n - 1); e <- exp(2i * pi * k/n)
+n <- 2^14; k <- 0:(n - 1); e <- exp(-2i * pi * k/n)
 phi <- function(t, a) exp(a * (t - 1))
 
 fgp <- function(t1, t2, t3) (
@@ -54,13 +54,13 @@ fgp <- function(t1, t2, t3) (
 )
 
 ## c)
-fn <- Re(fft(sapply(e, function(t) fgp(t, t, t))))/n
+fn <- Re(fft(sapply(e, function(t) fgp(t, t, t)), TRUE))/n
 fn[0:2 + 1]
 
 ## d)
-fm1 <- Re(fft(sapply(e, function(t) fgp(t, 1, 1))))/n
-fm2 <- Re(fft(sapply(e, function(t) fgp(1, t, 1))))/n
-fm3 <- Re(fft(sapply(e, function(t) fgp(1, 1, t))))/n
+fm1 <- Re(fft(sapply(e, function(t) fgp(t, 1, 1)), TRUE))/n
+fm2 <- Re(fft(sapply(e, function(t) fgp(1, t, 1)), TRUE))/n
+fm3 <- Re(fft(sapply(e, function(t) fgp(1, 1, t)), TRUE))/n
 c(fm1[5 + 1], fm2[5 + 1], fm3[5 + 1])
 
 ## e)
@@ -140,7 +140,7 @@ c(cor(X1anti, X2anti), cor(X1como, X2como))
 
 rm(list = ls())
 
-n <- 2^12; k <- 0:(n - 1); e <- exp(2i * pi * k/n)
+n <- 2^12; k <- 0:(n - 1); e <- exp(-2i * pi * k/n)
 r <- 2; lam <- c(1.5, 2); gam <- 0.8; m <- 10; q <- c(0.2, 0.3)
 
 fgpB1 <- function(t) (1 - q[1] + q[1] * t)^m
@@ -155,7 +155,7 @@ fgpX <- function(t1, t2) fgmT(
 
 # i)
 fgpS <- function(t) fgpX(t, t)
-fs <- Re(fft(fgpS(e)))/n
+fs <- Re(fft(fgpS(e), TRUE))/n
 
 # ii)
 Fs <- cumsum(fs)

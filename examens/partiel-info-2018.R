@@ -86,7 +86,7 @@ qpois(c(0.01, 0.99), lam2020)
 
 rm(list = ls())
 
-n <- 2^10; k <- 0:(n - 1); e <- exp(2i * pi * k/n)
+n <- 2^10; k <- 0:(n - 1); e <- exp(-2i * pi * k/n)
 be <- c(1/12, 1/2); lam <- c(0.03, 0.07); m <- 10; q <- be[1]/be[2]
 
 ## b)
@@ -97,7 +97,7 @@ p <- m * lam / lamN
 
 ## g)
 fgp <- function(t) exp(lamN * (p[1] * q * t/(1 - (1 - q) * t) + p[2] * t - 1))
-fl <- Re(fft(sapply(e, fgp)))/n
+fl <- Re(fft(sapply(e, fgp), TRUE))/n
 fl[c(0, 5, 10) + 1]
 
 ## h)

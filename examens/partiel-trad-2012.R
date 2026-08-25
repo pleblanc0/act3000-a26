@@ -173,7 +173,7 @@ Sbd <- (lam/(lam + d))^al
 
 rm(list = ls())
 
-n <- 2^10; k <- 0:(n - 1); e <- exp(2i * pi * k/n)
+n <- 2^10; k <- 0:(n - 1); e <- exp(-2i * pi * k/n)
 a0 <- 0.4; al <- c(0.6, 1.1); mu <- c(2.3, 2.1); sig <- c(0.8, 0.9)
 
 ## a)
@@ -184,7 +184,7 @@ CovX1X2
 fgpM <- function(t1, t2) exp(
     a0 * (t1 * t2 - 1) + al[1] * (t1 - 1) + al[2] * (t2 - 1)
 )
-fm12 <- Re(fft(outer(e, e, fgpM)))/n^2
+fm12 <- Re(fft(outer(e, e, fgpM), TRUE))/n^2
 c(fm12[0:1 + 1, 0:1 + 1])
 
 ## c)

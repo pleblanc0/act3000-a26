@@ -12,11 +12,11 @@
 ## a)
 rm(list = ls())
 
-n <- 2^10; k <- 0:(n - 1); e <- exp(2i * pi * k/n)
+n <- 2^10; k <- 0:(n - 1); e <- exp(-2i * pi * k/n)
 r <- 0.2; q <- 1/2; gam <- 1/4
 
 fgp <- function(t) (q/(1 - (1 - q) * gam * t/(1 - (1 - gam) * t)))^r
-fx <- Re(fft(sapply(e, fgp)))/n
+fx <- Re(fft(sapply(e, fgp), TRUE))/n
 fx[0:3 + 1]
 
 ## b)
@@ -29,10 +29,10 @@ X2 <- qexp(1 - U, be[2])
 ## c)
 rm(list = ls())
 
-n <- 2^10; k <- 0:(n - 1); e <- exp(2i * pi * k/n)
+n <- 2^10; k <- 0:(n - 1); e <- exp(-2i * pi * k/n)
 fgpM12 <- function(t1, t2) (0.56 + 0.14 * t1 + 0.24 * t2 + 0.06 * t1 * t2)^6
 
-fn <- Re(fft(sapply(e, function(t) fgpM12(t, t))))/n
+fn <- Re(fft(sapply(e, function(t) fgpM12(t, t)), TRUE))/n
 fn[0:1 + 1]
 
 
@@ -49,7 +49,7 @@ rm(list = ls())
 
 rm(list = ls())
 
-n <- 2^10; k <- 0:(n - 1); e <- exp(2i * pi * k/n)
+n <- 2^10; k <- 0:(n - 1); e <- exp(-2i * pi * k/n)
 q <- 0.7; lam <- 0.6; gam <- c(4, 6); p <- 1/gam
 p00 <- 0.1; p10 <- 0.2; p01 <- 0.3; p11 <- 0.4
 
@@ -65,7 +65,7 @@ EspX
 
 ## c)
 fgpX <- function(t) fgpJ(fgpK(fgpI1I2(fgpB(t, 1), fgpB(t, 2))))
-fx <- Re(fft(sapply(e, fgpX)))/n
+fx <- Re(fft(sapply(e, fgpX), TRUE))/n
 fx[0:3 + 1]
 
 
