@@ -48,7 +48,14 @@ muComo <- log(sum(exp(mu)))
 FsComo <- function(x) plnorm(x, muComo, sig)
 FsComo(40)
 
-## b) à faire
+## b)
+FsAnti <- function(x)
+{
+    c <- 1/sig * log((x - sqrt(x^2 - 4 * exp(sum(mu))))/(2 * exp(mu[1])))
+    d <- 1/sig * log((x + sqrt(x^2 - 4 * exp(sum(mu))))/(2 * exp(mu[1])))
+    pnorm(d) - pnorm(c)
+}
+FsAnti(40)
 
 
 ###
@@ -120,14 +127,27 @@ sapply(cdfs, function(Fx12) Fxi(0, 2) - Fx12(0, 0))
 ## f)
 zapsmall(sapply(cdfs, function(Fx12) 1 - Fxi(0, 1) - Fxi(0, 2) + Fx12(0, 0)))
 
-## g) à faire
-
 
 ###
 ### Exercice 14
 ###
 
 rm(list = ls())
+
+lam <- 1; be <- 1
+fgmB <- function(t) be/(be - t)
+
+## a)
+phi <- function(k, t) (lam * fgmB(t) - 1 - log(1 - k))/t
+
+## b)
+tk  <- function(k) 1 - (
+    (lam - sqrt(lam^2 - lam * (1 + log(1 - k))))/(2 * (1 + log(1 - k)))
+)
+
+## c)
+eVaR <- function(k) phi(k, tk(k))
+eVaR(0.9)
 
 
 ###
@@ -148,26 +168,17 @@ fx2 <- Re(fft(fgpX(1, e)))/n
 fx2[0:3 + 1]
 
 ## d)
+s <- 0:7
 fs <- Re(fft(fgpX(e, e)))/n
 fs[0:6 + 1]
 
-## e) à faire
+## e)   
+fx1_k_et_x2_0 <- c(0.005832, 0.00486, 0.00135, 0.000125) 
+sum(0:3 * fx1_k_et_x2_0)
 
-## f) à faire
-
-
-###
-### Exercice 17
-###
-
-rm(list = ls())
-
-
-###
-### Exercice 18
-###
-
-rm(list = ls())
+## f)
+sum(s * fs * exp(0.02 * s)) # E[Se^(0.02S)]
+sum(fs * exp(0.02 * s)) # E[e^(0.02S)]
 
 
 ###
@@ -176,14 +187,26 @@ rm(list = ls())
 
 rm(list = ls())
 
+n <- 8; k <- 0:(n - 1); e <- exp(2i * pi * k/n)
+
 fgpM <- function(t1, t2) (
     0.6 + 0.1 * t2^5 + 0.05 * t1 * t2^4 + 0.05 * t1^2 * t2^3 +
     0.05 * t1^3 * t2^2 + 0.05 * t1^4 * t2 + 0.1 * t1^5
 )
 
-## a) à faire
+## a)
+fm1m2 <- zapsmall(Re(fft(outer(e, e, fgpM)))/n^2)
 
-## .. à faire
+## b)
+fm1 <- zapsmall(Re(fft(sapply(e, function(t) fgpM(t, 1))))/n)
+fm2 <- zapsmall(Re(fft(sapply(e, function(t) fgpM(1, t))))/n)
+
+## c)
+EspM1 <- sum(k * fm1)
+EspM2 <- sum(k * fm2)
+
+EspM1M2 <- sum(outer(k, k) * fm1m2)
+CovM1M2 <- EspM1M2 - EspM1 * EspM2
 
 
 ###
@@ -191,6 +214,14 @@ fgpM <- function(t1, t2) (
 ###
 
 rm(list = ls())
+
+n <- 2^10; k <- 0:(n - 1)
+
+fk1 <- dnbinom(k, 2, 1/2)
+fk2 <- dnbinom(k, 1, 1/4)
+
+fn <- Re(fft(fft(fk1) * fft(fk2), TRUE))/n
+fn[0:2 + 1]
 
 
 ###
@@ -246,20 +277,6 @@ TVaRS(0.95)
 
 
 ###
-### Exercice 24
-###
-
-rm(list = ls())
-
-
-###
-### Exercice 25
-###
-
-rm(list = ls())
-
-
-###
 ### Exercice 26 À TERMINER
 ###
 
@@ -296,20 +313,6 @@ VarS <- sum(fs * (k * C - EspS)^2)
 fs[0:5 + 1]
 
 ## e) à faire
-
-
-###
-### Exercice 27
-###
-
-rm(list = ls())
-
-
-###
-### Exercice 28
-###
-
-rm(list = ls())
 
 
 ###
@@ -359,20 +362,6 @@ Fs(50)
 
 
 ###
-### Exercice 30
-###
-
-rm(list = ls())
-
-
-###
-### Exercice 31
-###
-
-rm(list = ls())
-
-
-###
 ### Exercice 32
 ###
 
@@ -417,13 +406,6 @@ Fs(1000)
 
 
 ###
-### Exercice 2 (à faire)
-###
-
-rm(list = ls())
-
-
-###
 ### Exercice 3
 ###
 
@@ -450,20 +432,6 @@ cumsum(fs)[c(30, 40) + 1]
 #===============================================================================
 #== Exercices supplémentaires ==================================================
 #===============================================================================
-
-###
-### 1. Distribution bêta-Bernoulli multivariée et distribution bêta-binomiale
-###
-
-rm(list = ls())
-
-
-###
-### 2. Distribution Bernoulli multivariée échangeable et loi gamma
-###
-
-rm(list = ls())
-
 
 ###
 ### 3. Chaîne Markov-Bernoulli et distribution Markov-binomiale
