@@ -108,6 +108,7 @@ all.equal(fgpX(0), fx[1])
 
 # préparation de l'exemple
 n <- 2^10; k <- 0:(n - 1)
+e <- exp(-2i * pi * k/n)
 
 # paramètres de la loi
 a0 <- 1; lam <- c(2, 3)
@@ -118,15 +119,17 @@ fgpM <- function(t1, t2) exp(
 )
 
 # question: comment trouver la fgp de la somme (afin d'obtenir sa fmp)
-# option 1: trouver les fgp marginales et faire le produit (très mauvaise idée!)
-# option 2: trouver la fgp de la somme et ensuite faire la procédure habituelle
+# a): trouver les fgp marginales et faire le produit (très mauvaise idée!)
+# b): trouver la fgp de la somme et ensuite faire la procédure habituelle
 
-# puisqu'il y a de la dépendance, on prend l'option 2!
+# puisqu'il y a de la dépendance, on prend l'option b)!
 fgpN <- function(t) fgpM(t, t)
 
 # fmp de la somme
 dft.n <- fgpN(e)
 fn <- Re(fft(dft.n, TRUE))/n
 
-# test diagnostic
+# tests diagnostics
 all.equal(exp(a0 - sum(lam)), fn[1])
+all.equal(sum(lam), sum(fn * k))
+all.equal(sum(lam) + 2 * a0, sum(fn * (k - sum(fn * k))^2))
