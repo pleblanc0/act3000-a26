@@ -245,6 +245,52 @@ sapply(0:10 * 10, stoploss)
 
 
 ###
+### Exemple notes de cours p.50
+###
+
+fx1 <- c(0.6, 0.4 * ((1:6/6)^2 - (0:5/6)^2), rep(0, 9))
+fx2 <- c(0.7, 0.3 * ((1:9/9)^3 - (0:8/9)^3), rep(0, 6))
+
+directconvo <- function(f1, f2)
+{
+    fs <- numeric(length(f1) + length(f2) - 1)
+
+    for (i in seq_along(f1))
+    {
+        j <- i + seq_along(f2) - 1
+        fs[j] <- fs[j] + f1[i] * f2
+    }
+    fs
+}
+
+# FMP de la somme
+fs <- directconvo(fx1, fx2)
+n <- 16; k <- 0:(n - 1)
+
+# Espérances et variances
+EspX1 <- sum(k * fx1)
+EspX2 <- sum(k * fx2)
+
+VarX1 <- sum((k - EspX1)^2 * fx1)
+VarX2 <- sum((k - EspX2)^2 * fx2)
+
+EspS <- EspX1 + EspX2
+VarS <- VarX1 + VarX2
+
+# Allocations espérées
+EA1 <- directconvo(k * fx1, fx2)
+EA2 <- directconvo(k * fx2, fx1)
+
+# Allocations conditionnelles
+EC1 <- EA1/fs
+EC2 <- EA2/fs
+
+# Tableaux de résultats
+cbind(fs, EA1, EC1, EA2, EC2)[k + 1, ]
+t(cbind(c(EspX1, EspX2, EspS), c(VarX1, VarX2, VarS)))
+
+
+###
 ### Algorithme de Panjer - Exemple 1
 ###
 
