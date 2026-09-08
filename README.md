@@ -13,14 +13,14 @@
 
 ## 👨‍🏫 **Professeur**
 
-* **Etienne Marceau** – Professeur titulaire, École d'actuariat  
-  *Courriel : [adresse à compléter]*  
-  *Heures de bureau : [horaire à compléter]*  
-
+* **Etienne Marceau** – Professeur titulaire, École d'actuariat
+  *Courriel : [adresse à compléter]*
+  *Heures de bureau : [horaire à compléter]*
 
 ## 👨‍💻 **Auxiliaires d'enseignement**
 
 * Philippe Leblanc
+* Omar Essakine
 
 ### 🌲 **Arbre du dépôt**
 
@@ -33,9 +33,6 @@
 ├── revision/       # Dossier regroupant les documents et outils pour la révision des concepts clés
 ├── .gitignore      # Fichier pour exclure certains fichiers/dossiers du suivi Git
 └── README.md       # Documentation principale du dépôt
-
 ```
 
 ## 📝 **Informations supplémentaires**
-
-*
