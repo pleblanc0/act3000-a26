@@ -6,7 +6,52 @@
 ################################################################################
 
 ###
-### Exercice de base 1
+### Utiliser l’algorithme FFT adroitement 1 (p.12)
+###
+
+rm(list = ls())
+
+n <- 2^12; k <- 0:(n - 1); e <- exp(2i * pi * k/n); lam <- 3
+
+fgp <- function(t) exp(lam * (t - 1))
+fm <- Re(fft(fgp(e)))/n
+
+# alternative
+fb <- c(0, 1, rep(0, n - 2))
+dftb <- fft(fb)
+
+dftm <- fgp(dftb)
+fm.alt <- Re(fft(dftm, TRUE))/n
+
+# comparaison
+all.equal(fm, fm.alt)
+
+
+###
+### Utiliser l’algorithme FFT adroitement 2 (p.13)
+###
+
+rm(list = ls())
+
+n <- 2^12; k <- 0:(n - 1); e <- exp(2i * pi * k/n)
+lam <- 2; be <- 0.5
+
+fgp <- function(t) exp((1 - sqrt(1 - 2 * be * lam * (t - 1)))/be)
+fm <- Re(fft(fgp(e)))/n
+
+# alternative
+fb <- c(0, 1, rep(0, n - 2))
+dftb <- fft(fb)
+
+dftm <- fgp(dftb)
+fm.alt <- Re(fft(dftm, TRUE))/n
+
+# comparaison
+all.equal(fm, fm.alt)
+
+
+###
+### Exercice de base 1 (p.5)
 ###
 
 rm(list = ls())
@@ -28,7 +73,7 @@ all.equal(fs, fs.alt)
 
 
 ###
-### Exercice de base 2
+### Exercice de base 2 (p.6)
 ###
 
 rm(list = ls())
@@ -67,8 +112,9 @@ all.equal(EspAll, EA)
 EC <- sapply(1:5, function(i) zapsmall(EA[, i])/fs)
 all.equal(EspCond, EC)
 
+
 ###
-### Exercice de base 3
+### Exercice de base 3 (p.7)
 ###
 
 rm(list = ls())
@@ -95,7 +141,7 @@ sapply(0:10 * 10, stoploss)
 
 
 ###
-### Exercice de base 4
+### Exercice de base 4 (p.8)
 ###
 
 rm(list = ls())
@@ -130,7 +176,7 @@ sapply(2:10 * 10, stoploss)
 
 
 ###
-### Exercice de base 5
+### Exercice de base 5 (p.9)
 ###
 
 rm(list = ls())
@@ -176,32 +222,7 @@ sapply(5:15 * 10, stoploss)
 
 
 ###
-### Utiliser l’algorithme FFT adroitement 1
-###
-
-rm(list = ls())
-
-n <- 2^12; k <- 0:(n - 1); e <- exp(2i * pi * k/n); lam <- 3
-
-fgp <- function(t) exp(lam * (t - 1))
-fm <- Re(fft(sapply(e, fgp)))/n
-
-
-###
-### Utiliser l’algorithme FFT adroitement 2
-###
-
-rm(list = ls())
-
-n <- 2^12; k <- 0:(n - 1); e <- exp(2i * pi * k/n)
-lam <- 2; be <- 0.5
-
-fgp <- function(t) exp((1 - sqrt(1 - 2 * be * lam * (t - 1)))/be)
-fm <- Re(fft(sapply(e, fgp)))/n
-
-
-###
-### Algorithme FFT et partage de risque
+### Algorithme FFT et partage de risque (p.18)
 ###
 
 rm(list = ls())
@@ -225,7 +246,7 @@ c(sum(c1), sum(c2))
 
 
 ###
-### Processus de branchement et épidémie
+### Processus de branchement et épidémie (p.21)
 ###
 
 rm(list = ls())
@@ -277,7 +298,7 @@ sapply(c(2, 3, 7), prob_variante_2)
 
 
 ###
-### Processus de Poisson
+### Processus de Poisson (p.27)
 ###
 
 rm(list = ls())
@@ -304,7 +325,7 @@ c(N2 + lam * (t2 - t1), lam * (t2 - t1))
 
 
 ###
-### Processus de Poisson composé avec sinistres gamma
+### Processus de Poisson composé avec sinistres gamma (p.29)
 ###
 
 rm(list = ls())
