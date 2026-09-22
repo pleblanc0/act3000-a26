@@ -296,6 +296,12 @@ phi2 <- c2/fs
 all.equal((phi1 + phi2)[valid], k[valid])
 c(sum(c1), sum(c2))
 
+# vérification dans le cas général
+EspAll <- cbind(c1, c2)
+all.equal(colSums(EspAll))
+
+EspCond <- cbind(phi1, phi2)
+all.equal(rowSums(EspCond)[valid], k[valid])
 
 ###
 ### Processus de branchement et épidémie (p.21)
