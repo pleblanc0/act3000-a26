@@ -21,7 +21,7 @@ fb <- c(0, 1, rep(0, n - 2))
 dftb <- fft(fb)
 
 dftm <- fgp(dftb)
-fm.alt <- Re(fft(dftm, TRUE))/n
+fm.alt <- Re(fft(dftm, inverse = TRUE))/n
 
 # comparaison
 all.equal(fm, fm.alt)
@@ -33,11 +33,11 @@ all.equal(fm, fm.alt)
 
 rm(list = ls())
 
-n <- 2^12; k <- 0:(n - 1); e <- exp(2i * pi * k/n)
+n <- 2^12; k <- 0:(n - 1); e <- exp(-2i * pi * k/n)
 lam <- 2; be <- 0.5
 
 fgp <- function(t) exp((1 - sqrt(1 - 2 * be * lam * (t - 1)))/be)
-fm <- Re(fft(fgp(e)))/n
+fm <- Re(fft(fgp(e), TRUE))/n
 
 # alternative
 fb <- c(0, 1, rep(0, n - 2))
@@ -56,16 +56,17 @@ all.equal(fm, fm.alt)
 
 rm(list = ls())
 
-n <- 2^12; k <- 0:(n - 1); e <- exp(2i * pi * k/n)
+n <- 2^12; k <- 0:(n - 1); e <- exp(-2i * pi * k/n)
 i <- 1:10; r <- 2; q <- 1 - 0.01 * i
 
 # méthode 1: utiliser directement la fgp
 fgp <- function(t) prod((q/(1 - (1 - q) * t))^r)
-fs <- Re(fft(sapply(e, fgp)))/n
+fs <- Re(fft(sapply(e, fgp), TRUE))/n
 
 # méthode 2: utiliser les fmps
 fx <- sapply(1:10, function(i) dnbinom(k, r, q[i]))
-dfts <- apply(mvfft(fx), 1, prod)
+dftx <- mvfft(fx)
+dfts <- apply(dftx, 1, prod)
 fs.alt <- Re(fft(dfts, TRUE))/n
 
 # comparaison des deux méthodes
@@ -78,12 +79,12 @@ all.equal(fs, fs.alt)
 
 rm(list = ls())
 
-n <- 2^5; k <- 0:(n - 1); e <- exp(2i * pi * k/n)
+n <- 2^5; k <- 0:(n - 1); e <- exp(-2i * pi * k/n)
 q <- c(0.2, 0.3, 0.4, 0.1, 0.5); b <- c(5, 8, 7, 9, 2)
 
 ## 1)
 fgp <- function(t) prod(1 - q + q * t^b)
-fs <- Re(fft(sapply(e, fgp)))/n
+fs <- Re(fft(sapply(e, fgp), TRUE))/n
 
 # méthode alternative: utiliser les fmps
 fx <- sapply(
@@ -97,7 +98,7 @@ all.equal(fs, fs.alt)
 
 ## 2) utiliser le Théorème 2 des notes de cours (Chapitre 1)
 ogfi <- function(t, i) q[i] * b[i] * t^b[i] * prod(1 - q[-i] + q[-i] * t^b[-i])
-EspAll <- sapply(1:5, function(i) zapsmall(Re(fft(sapply(e, ogfi, i)))/n))
+EspAll <- sapply(1:5, function(i) zapsmall(Re(fft(sapply(e, ogfi, i), TRUE))/n))
 all.equal(colSums(EspAll), q * b)
 
 EspCond <- sapply(1:5, function(i) EspAll[, i]/fs)
@@ -119,24 +120,24 @@ all.equal(EspCond, EC)
 
 rm(list = ls())
 
-n <- 2^12; k <- 0:(n - 1); e <- exp(2i * pi * k/n); m <- 10
+n <- 2^12; k <- 0:(n - 1); e <- exp(-2i * pi * k/n); m <- 10
 p <- c(0.5, 0.1, 0.2, 0.08, 0.05, 0.04, 0.02, 0.01)
-b <- c(0, 1, 2, 5, 10, 20, 50, 100)
+b <- c(0, 1, 2, 5, 10, 20, 50, 100); d <- 1000
 
 ## 1)
-EspX <- sum(b * p)
+EspX <- sum(b * p) * d
 EspS <- m * EspX
 
 ## 2)
-VarX <- sum(b^2 * p) - EspX^2
+VarX <- sum(b^2 * p) * d - EspX^2
 VarS <- m * VarX
 
 ## 3)
 fgp <- function(t) (sum(p * t^b))^m
-fs <- Re(fft(sapply(e, fgp)))/n
+fs <- Re(fft(sapply(e, fgp), TRUE))/n
 
 ## 5)
-stoploss <- function(d) sum(pmax(k - d, 0) * fs)
+stoploss <- function(g) sum(pmax(k * d - g, 0) * fs)
 sapply(0:10 * 10, stoploss)
 
 
@@ -146,7 +147,7 @@ sapply(0:10 * 10, stoploss)
 
 rm(list = ls())
 
-n <- 2^12; k <- 0:(n - 1); e <- exp(2i * pi * k/n)
+n <- 2^12; k <- 0:(n - 1); e <- exp(-2i * pi * k/n)
 lam <- 5; al <- c(0.8, 0.2); nu <- c(0.5, 0.1)
 
 ## 1)
@@ -161,7 +162,7 @@ VarX <- EspM * VarB + VarM * EspB^2
 
 ## 3)
 fgp <- function(t) exp(lam * (sum(al * nu * t/(1 - (1 - nu) * t)) - 1))
-fx <- Re(fft(sapply(e, fgp)))/n
+fx <- Re(fft(sapply(e, fgp), TRUE))/n
 
 ## 4)
 VaR <- function(u) k[min(which(cumsum(fx) >= u))]
@@ -181,16 +182,16 @@ sapply(2:10 * 10, stoploss)
 
 rm(list = ls())
 
-n <- 2^12; k <- 0:(n - 1); e <- exp(2i * pi * k/n)
+n <- 2^12; k <- 0:(n - 1); e <- exp(-2i * pi * k/n)
 r <- c(0.5, 2.5); q <- c(1/11, 1/3)
 a <- c(0.8, 0.2); nu <- c(0.5, 0.1)
 b <- c(0.7, 0.3); eta <- c(0.25, 0.0625)
 
 fgpC1 <- function(t) sum(a * nu * t/(1 - (1 - nu) * t))
-fc1 <- Re(fft(sapply(e, fgpC1)))/n
+fc1 <- Re(fft(sapply(e, fgpC1), TRUE))/n
 
 fgpC2 <- function(t) sum(b * eta * t/(1 - (1 - eta) * t))
-fc2 <- Re(fft(sapply(e, fgpC2)))/n
+fc2 <- Re(fft(sapply(e, fgpC2), TRUE))/n
 
 b1 <- pmin(35, pmax(k - 15, 0))
 fb1 <- c(
@@ -219,6 +220,57 @@ cbind(VaR = sapply(u, VaR), TVaR = sapply(u, TVaR))
 ## 5)
 stoploss <- function(d) sum(pmax(k - d, 0) * fs)
 sapply(5:15 * 10, stoploss)
+
+
+###
+###  Données de précipitation avec sévérité Weibull
+###
+
+rm(list = ls())
+
+path <- dirname(rstudioapi::getSourceEditorContext()$path)
+data <- readRDS(file.path(path, "ACT3000-ex-rpr-rainfall-param.rds"))
+
+n <- 2^16; k <- 0:(n - 1);  h <- 0.1; kh <- k * h
+m <- 19; p <- data$p; tau <- data$tau; lam <- data$lam
+s <- c(0.1, 1, 2, 3, 4, 5, 10, 15, 20, 25, 50, 75, 100, 125); sh <- s/h
+
+fb <- sapply(1:m, function(i) c(0, diff(pweibull(kh, tau[i], lam[i]))))
+
+EspX <- p * lam * gamma(1 + 1/tau)
+EspXh <- sapply(1:m, function(i) p[i] * sum(kh * fb[, i]))
+
+VarX <- (
+    p * lam^2 * (gamma(1 + 2/tau) - gamma(1 + 1/tau)^2) +
+    p * (1 - p) * (lam * gamma(1 + 1/tau))^2
+)
+VarXh <- sapply(1:m, function(i)
+    p[i] * sum((kh - EspXh[i])^2 * fb[, i]) + p[i] * (1 - p[i]) * EspXh[i]^2
+)
+
+EspS <- sum(EspX)
+VarS <- sum(VarX)
+
+fx <- sapply(1:m, function(i) Re(fft(1 - p[i] + p[i] * fft(fb[, i]), TRUE))/n)
+fs <- Re(fft(apply(mvfft(fx), 1, prod), TRUE))/n
+
+EspSh <- sum(fs * kh)
+VarSh <- sum(fs * (kh - EspSh)^2)
+
+Fs <- cumsum(fs)
+Fs[sh + 1]
+
+EA <- sapply(1:m, function(i) Re(
+    fft(fft(kh * fx[, i]) * apply(mvfft(fx[, -i]), 1, prod), TRUE)/n
+))
+Ycond <- sapply(1:m, function(i) sapply(sh, function(x) EA[x + 1, i]/fs[x + 1]))
+Ycond[, c(1, 6, 18)]
+
+Yprop <- sapply(1:m, function(i) EspX[i]/EspS * s)
+Yprop[, c(1, 6, 18)]
+
+Yreg <- sapply(1:m, function(i) EspX[i] + VarX[i]/VarS * (s - EspS))
+Yreg[, c(1, 6, 18)]
 
 
 ###
