@@ -272,6 +272,10 @@ Yprop[, c(1, 6, 18)]
 Yreg <- sapply(1:m, function(i) EspX[i] + VarX[i]/VarS * (s - EspS))
 Yreg[, c(1, 6, 18)]
 
+# validation
+sapply(
+    list(Ycond, Yprop, Yreg), function(Y) all.equal(rowSums(Y), s)
+)
 
 ###
 ### Algorithme FFT et partage de risque (p.18)
@@ -356,7 +360,7 @@ sapply(c(2, 3, 7), prob_variante_2)
 
 
 ###
-### Processus de Poisson (p.27)
+### Processus de Poisson (p.24)
 ###
 
 rm(list = ls())
@@ -383,7 +387,7 @@ c(N2 + lam * (t2 - t1), lam * (t2 - t1))
 
 
 ###
-### Processus de Poisson composé avec sinistres gamma (p.29)
+### Processus de Poisson composé avec sinistres gamma (p.27)
 ###
 
 rm(list = ls())
