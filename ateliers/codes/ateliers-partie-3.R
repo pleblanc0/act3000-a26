@@ -54,6 +54,13 @@ X.como[, 1] <- qlnorm(U.como, mu, sig)
 X.como[, 2] <- qgamma(U.como, al.gam, be)
 X.como[, 3] <- lam * ((1 - U.como)^(-1/al.par) - 1)
 
+# Simulation des v.a. antimonotones
+U.anti <- U.como
+X.anti <- matrix(numeric(m * 2), ncol = 2)
+
+X.anti[, 1] <- qlnorm(U.anti, mu, sig)
+X.anti[, 2] <- qgamma(1 - U.anti, al.gam, be)
+
 # Agrégation des composantes simulées
 S.indep <- rowSums(X.indep)
 head(S.indep)
