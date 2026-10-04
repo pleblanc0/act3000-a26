@@ -7,8 +7,6 @@ n <- 2^20; k <- 0:(n - 1); v <- c(10, 50)
 r <- c(0.5, 2.5, 5); q <- c(1/11, 1/3, 1/2)
 
 fx <- sapply(1:3, function(i) dnbinom(k, r[i], q[i]))
-dftx <- mvfft(fx)
-dfts <- apply(mvfft(fx), 1, prod)
 fs <- Re(fft(apply(mvfft(fx), 1, prod), TRUE))/n
 
 # a)
