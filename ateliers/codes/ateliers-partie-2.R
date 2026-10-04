@@ -164,6 +164,11 @@ VarX <- EspM * VarB + VarM * EspB^2
 fgp <- function(t) exp(lam * (sum(al * nu * t/(1 - (1 - nu) * t)) - 1))
 fx <- Re(fft(sapply(e, fgp), TRUE))/n
 
+# alternative
+fb <- c(0, sapply(k, function(j) sum(al * dgeom(j, nu))))[1:n]
+fgpPoisson <- function(t) exp(lam * (t - 1))
+dftb <- fft(fb)
+
 ## 4)
 VaR <- function(u) k[min(which(cumsum(fx) >= u))]
 TVaR <- function(u) sum(pmax(k - VaR(u), 0) * fx)/(1 - u) + VaR(u)
