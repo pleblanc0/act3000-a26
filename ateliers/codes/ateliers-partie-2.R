@@ -243,14 +243,10 @@ s <- c(0.1, 1, 2, 3, 4, 5, 10, 15, 20, 25, 50, 75, 100, 125); sh <- s/h
 fb <- sapply(1:m, function(i) c(0, diff(pweibull(kh, tau[i], lam[i]))))
 
 EspX <- p * lam * gamma(1 + 1/tau)
-EspXh <- sapply(1:m, function(i) p[i] * sum(kh * fb[, i]))
 
 VarX <- (
     p * lam^2 * (gamma(1 + 2/tau) - gamma(1 + 1/tau)^2) +
     p * (1 - p) * (lam * gamma(1 + 1/tau))^2
-)
-VarXh <- sapply(1:m, function(i)
-    p[i] * sum((kh - EspXh[i])^2 * fb[, i]) + p[i] * (1 - p[i]) * EspXh[i]^2
 )
 
 EspS <- sum(EspX)
