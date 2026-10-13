@@ -372,3 +372,216 @@ fn <- t(sapply(0:3, function(k) colSums(f[n == k, , drop = FALSE])))
 
 rownames(fn) <- paste0('k = ', 0:3)
 fn
+
+###
+### Distribution discrète et simulation
+###
+
+m <- seq(0, 5)
+
+Fm1m2 <- matrix(
+    c(0.12, 0.18, 0.18, 0.18, 0.24, 0.30,
+      0.12, 0.24, 0.24, 0.27, 0.34, 0.40,
+      0.12, 0.42, 0.52, 0.60, 0.74, 0.80,
+      0.16, 0.46, 0.56, 0.64, 0.81, 0.90,
+      0.18, 0.48, 0.58, 0.66, 0.83, 0.96,
+      0.20, 0.50, 0.60, 0.68, 0.85, 1.00),
+    byrow = TRUE, nrow = length(m)
+)
+
+## 1)
+Fm1 <- Fm1m2[, length(m)]
+Fm2 <- Fm1m2[length(m), ]
+
+## 2)
+fm1 <- diff(c(0, Fm1))
+fm2 <- diff(c(0, Fm2))
+
+EspM1 <- sum(m * fm1)
+EspM2 <- sum(m * fm2)
+
+VarM1 <- sum(m^2 * fm1) - EspM1^2 
+VarM2 <- sum(m^2 * fm2) - EspM2^2
+
+## 3)
+Fm1m2.f <- function(m1, m2) ifelse(
+    m1 < 0 | m2 < 0, 0, Fm1m2[m1 + 1, m2 + 1]
+)
+
+fm1m2.f <- function(m1, m2)
+{
+    Fm1m2.f(m1, m2) - Fm1m2.f(m1 - 1, m2) - 
+    Fm1m2.f(m1, m2 - 1) + Fm1m2.f(m1 - 1, m2 - 1) 
+}
+
+grid.m1m2 <- expand.grid(m1 = m, m2 = m)
+
+fm1m2 <- matrix(
+    mapply(fm1m2.f, grid.m1m2$m1, grid.m1m2$m2), ncol = length(m), byrow = FALSE
+)
+
+sum(fm1m2)
+rowSums(fm1m2)
+colSums(fm1m2)
+
+## 4)
+EspM1M2 <- sum(outer(m, m, function(x, y) x * y * fm1m2))
+CovM1M2 <- EspM1M2 - EspM1 * EspM2
+
+## 5)
+fM1cM2 <- apply(fm1m2, 2, function(col) col/sum(col))
+colSums(fM1cM2)
+
+## 6)
+Fm1cm2 <- apply(fM1cM2, 2, cumsum)
+
+## 7)
+fm2cm1 <- t(apply(fm1m2, 1, function(row) row/sum(row)))
+rowSums(fm2cm1)
+
+## 8)
+Fm2cm1 <- t(apply(fm2cm1, 1, cumsum))
+
+## 9)
+EspM1cM2 <- function(m2) sum(mm * fm1cm2[, m2 + 1])
+
+## 10)
+EspM2cM1 <- function(m1) sum(mm * fm2cm1[m1 + 1, ])
+
+## 11)
+V1 <- c(0.334, 0.952, 0.016, 0.781)
+V2 <- c(0.412, 0.859, 0.535, 0.186)
+
+M1 <- M2 <- numeric(length(V1))
+
+for (j in seq(length(M1)))
+{  
+    M1[j] <- m[min(which(cumsum(fm1) >= V1[j]))]
+    M2[j] <- m[min(which(cumsum(fm2cm1[M1[j] + 1, ]) >= V2[j]))]
+}
+
+cbind(M1, M2)
+
+
+###
+### Chaîne de Markov homogène en temps discret
+###
+
+rm(list = ls())
+
+tran <- matrix(
+    c(0.8, 0.15, 0.05, 0.3, 0.65, 0.05, 0.3, 0.15, 0.55),
+    byrow = TRUE, nrow = 3
+)
+rowSums(tran)
+
+## 1)
+stat <- eigen(t(tran))
+stat <- stat$vectors[, 1]
+stat <- stat/sum(stat)
+
+## 2)
+m <- 0:2
+EspMk <- sum(m * stat)
+VarMk <- sum(m^2 * stat) - EspMk^2
+
+## 3)
+fm1m2 <- function(m1, m2) stat[m1 + 1] * tran[m1 + 1, m2 + 1]
+
+grid2 <- expand.grid(m1 = m, m2 = m)
+cbind(grid2, prob = mapply(fm1m2, grid2$m1, grid2$m2))
+
+## 4)
+fm1m2m3 <- function(m1, m2, m3) (
+    stat[m1 + 1] * tran[m1 + 1, m2 + 1] *  tran[m2 + 1, m3 + 1]
+)
+
+grid3 <- expand.grid(m1 = m, m2 = m, m3 = m)
+cbind(grid3, prob = mapply(fm1m2m3, grid3$m1, grid3$m2, grid3$m3))
+
+## 5)
+fm1m2m3m4 <- function(m1, m2, m3, m4) (
+    stat[m1 + 1] * tran[m1 + 1, m2 + 1] *
+    tran[m2 + 1, m3 + 1] * tran[m3 + 1, m4 + 1]
+)
+  
+grid4 <- expand.grid(m1 = m, m2 = m, m3 = m, m4 = m)
+cbind(grid4, prob = mapply(fm1m2m3m4, grid4$m1, grid4$m2, grid4$m3, grid4$m4))
+
+## 6)
+EspM1M2 <- sum(outer(m, m, function(x, y) x * y * mapply(fm1m2, x, y))) 
+CovM1M2 <- EspM1M2 - EspMk^2
+
+# Covariance avec distance de 2
+EspM1M3 <- sum(
+    mapply(function(a, b, c) a * c * fm1m2m3(a, b, c),
+    grid3$m1, grid3$m2, grid3$m3)
+)
+CovM1M3 <- EspM1M3 - EspMk^2
+
+# Covariance avec distance de 3
+EspM1M4 <- sum(
+    mapply(function(a, b, c, d) a * d * fm1m2m3m4(a, b, c, d),
+    grid4$m1, grid4$m2, grid4$m3, grid4$m4)
+)
+CovM1M4 <- EspM1M4 - EspMk^2
+
+## 7)
+EspN4 <- 4 * EspMk
+VarN4 <- 4 * VarMk + 6 * CovM1M2 + 4 * CovM1M3 + 2 * CovM1M4
+
+fgpL <- function(t) stat[1] + stat[2] * t + stat[3] * t^2
+
+fgp.Ni <- function(i, t1, t2, theta)
+{
+    if (i == 1) fgpL(t2)
+    else (
+        (1 - theta) * fgp.Ni(i - 1, t1, t1, theta) * fgpL(t2) +
+        theta * fgp.Ni(i - 1, t1, t1 * t2, theta)
+    )
+}
+
+theta <- 0.5
+
+# Fonction de masse de N20
+n <- 2^8; k <- 0:(n - 1); r <- 20
+e <- exp(-2i * pi * k/n)
+
+fn20 <- Re(fft(fgp.Ni(r, e, e, theta), TRUE))/n
+sum(fn20)
+
+EspN20 <- sum(k * fn20) # 20 * E_Mk
+VarN20 <- sum(k^2 * fn20) - EspN20^2
+
+# Simulation d'un parcours
+set.seed(42)
+U <- runif(r)
+parcours <- numeric(r)
+
+parcours[1] <- min(which(cumsum(stat) >= U[1])) - 1
+
+for(i in seq(2, r)) (
+    parcours[i] <- min(which(cumsum(tran[parcours[i - 1] + 1, ]) >= U[i])) - 1  
+)
+parcours
+
+# simulation de 100000 parcours pour approximer la fmp de N20
+m <- 1E5; r <- 20; set.seed(42)
+U <- matrix(runif(m * r), ncol = r, byrow = TRUE)
+
+parcours <- matrix(0, nrow = m, ncol = r)
+parcours[, 1] <- apply(
+    U[, 1, drop = FALSE], 1, function(u) min(which(cumsum(stat) >= u)) - 1
+)
+for (i in 2:r) parcours[, i] <- mapply(
+    function(prev, u) min(
+        which(cumsum(tran[prev + 1, ]) >= u)
+    ) - 1, parcours[, i - 1], U[, i]
+)
+
+# Cov(M1, M2)
+c(cov(parcours[, 1], parcours[, 2]), CovM1M2)
+
+# Cov(M1, M4)
+c(cov(parcours[, 1], parcours[, 4]), CovM1M4)
+
