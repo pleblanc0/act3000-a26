@@ -585,3 +585,51 @@ c(cov(parcours[, 1], parcours[, 2]), CovM1M2)
 # Cov(M1, M4)
 c(cov(parcours[, 1], parcours[, 4]), CovM1M4)
 
+
+###
+### Loi exponentielle bivariée FGM
+###
+
+rm(list = ls())
+
+be <- c(1/4, 1/6)
+theta <- 0.5 * -2:2
+
+###
+### 1
+###
+
+Fx1 <- function(x) pexp(x, be[1])
+Fx2 <- function(x) pexp(x, be[2])
+
+###
+### 2
+###
+
+Fx1x2 <- function(x1, x2, t) Fx1(x1) * Fx2(x2) * (
+    1 + t * (1 - Fx1(x1)) * (1 - Fx2(x2))
+)
+Fx1x2(10, 15, theta)
+
+###
+### 3
+###
+
+theta/4
+
+###
+### 4
+###
+
+Fx1Cx2 <- function(x1, x2, t) Fx1x2(x1, x2, t)/Fx2(x2)
+Fx1Cx2(10, 15, theta)
+
+###
+### 5
+###
+
+M <- function(x1, x2) min(Fx1(x1), Fx2(x2))
+M(10, 15)
+
+W <- function(x1, x2) max(Fx1(x1) + Fx2(x2) - 1, 0)
+W(10, 15)
