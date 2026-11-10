@@ -171,3 +171,84 @@ sum(fI)
 supp <- expand.grid(rep(list(0:1), m))
 colSums(as.matrix(supp) * fI)
 colSums((as.matrix(supp) - colSums(as.matrix(supp) * fI))^2 * fI)
+
+
+###
+### Distribution Poisson composée bivariée
+###
+
+n <- 2^10; k <- 0:(n - 1); e <- exp(-2i * pi * k/n)
+lam <- c(0.6, 0.9); g0 <- 0.3; q <- c(1/5, 1/8)
+
+fgpM <- function(t1, t2) exp(
+    (lam[1] - g0) * (t1 - 1) + (lam[2] - g0) * (t2 - 1) + g0 * (t1 * t2 - 1)
+)
+fb <- sapply(1:2, function(i) c(0, dgeom(k[-n], q[i])))
+
+##
+## 1, 2 et 3
+##
+
+EspM <- lam
+EspB <- 1/q
+EspX <- EspM * EspB
+EspS <- sum(EspX)
+
+CovM <- g0
+CovX <- CovM * prod(EspB)
+
+VarM <- lam
+VarB <- (1 - q)/q^2
+VarX <- EspM * VarB + VarM * EspB^2
+VarS <- sum(VarX) + 2 * CovX
+
+##
+## 4
+##
+
+# transformée de Fourier des lois de sévérité
+dftb <- mvfft(fb)
+
+# transformée de Fourier de fmp de S
+dfts <- fgpM(dftb[, 1], dftb[, 2])
+
+# transformée inverse de Fourier pour obtenir la fmp de S
+fs <- Re(fft(dfts, inverse = TRUE))/n
+
+##
+## 5
+##
+
+v <- 0:3 * 10
+fs[v + 1]
+
+Fs <- cumsum(fs)
+Fs[v + 1]
+
+SL <- function(d) sum(pmax(k - d, 0) * fs)
+sapply(v, SL)
+
+###
+### Distribution Bernoulli composée multivariée
+###
+
+rm(list = ls())
+
+n <- 2^10; k <- 0:(n - 1); e <- exp(-2i * pi * k/n)
+p <- c(1/5, 1/8, 1/4)
+
+fgp1 <- function(t1, t2, t3) (
+    1/20 + 1/5 * t1 + 1/4 * t2 + 1/2 * t3
+)
+fgp2 <- function(t1, t2, t3) (
+    1/2 + 1/4 * t3 + 1/20 * t2 * t3 + 1/5 * t1 * t2 * t3
+)
+fgp3 <- function(t1, t2, t3) (
+    9/20 + 1/20 * t2 + 6/20 * t3 + 4/20 * t1 * t2 * t3
+)
+
+fb <- sapply(1:3, function(i) c(0, dgeom(k[-n], p[i])))
+
+##
+## à continuer au prochain atelier
+##
