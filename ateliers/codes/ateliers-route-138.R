@@ -153,6 +153,8 @@ all.equal(ContrXi[1:(m/2)], rev(ContrXi[(m/2 + 1):m]))
 ### Calcul de la fmp de I par transformée de Walsh-Hadamard
 ###
 
+## ceci n'est PAS matière à évaluation!
+
 # matrices de Hadamard construites récursivement
 H2 <- matrix(c(1, 1, 1, -1), 2, 2)
 H2k <- function(k) if (k == 1) H2 else kronecker(H2, H2k(k - 1))
@@ -234,7 +236,7 @@ sapply(v, SL)
 
 rm(list = ls())
 
-n <- 2^10; k <- 0:(n - 1); e <- exp(-2i * pi * k/n)
+n <- 2^16; k <- 0:(n - 1); e <- exp(-2i * pi * k/n)
 p <- c(1/5, 1/8, 1/4)
 
 fgp1 <- function(t1, t2, t3) (
@@ -248,7 +250,11 @@ fgp3 <- function(t1, t2, t3) (
 )
 
 fb <- sapply(1:3, function(i) c(0, dgeom(k[-n], p[i])))
+Fb <- sapply(1:3, function(i) cumsum(fb[, i]))
 
-##
-## à continuer au prochain atelier
-##
+EspB <- sapply(1:3, function(i) sum(fb[, i] * k))
+VarB <- sapply(1:3, function(i) sum(fb[, i] * k^2) - sum(fb[, i] * k)^2)
+
+dfts1 <- fgp1(fft(fb[, 1]), fft(fb[, 2]), fft(fb[, 3]))
+fs1 <- Re(fft(dfts1, TRUE))/n
+Fs1 <- cumsum(fs1)
