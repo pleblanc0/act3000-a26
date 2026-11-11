@@ -179,6 +179,8 @@ colSums((as.matrix(supp) - colSums(as.matrix(supp) * fI))^2 * fI)
 ### Distribution Poisson composée bivariée
 ###
 
+rm(list = ls())
+
 n <- 2^10; k <- 0:(n - 1); e <- exp(-2i * pi * k/n)
 lam <- c(0.6, 0.9); g0 <- 0.3; q <- c(1/5, 1/8)
 
@@ -258,3 +260,100 @@ VarB <- sapply(1:3, function(i) sum(fb[, i] * k^2) - sum(fb[, i] * k)^2)
 dfts1 <- fgp1(fft(fb[, 1]), fft(fb[, 2]), fft(fb[, 3]))
 fs1 <- Re(fft(dfts1, TRUE))/n
 Fs1 <- cumsum(fs1)
+
+###
+### Poisson fait aussi un road trip sur la route 138
+###
+
+rm(list = ls())
+
+n <- 2^10; k <- 0:(n - 1); e <- exp(-2i * pi * k/n)
+lam <- 2; al <- c(0, 0.2, 0.5, 0.9); gam <- 1/5
+
+fgpM <- function(s, lambda, alpha)
+{
+    n <- length(s)
+    xi <- s
+
+    if (n >= 2)
+        for (k in (n - 1):1)
+            xi[k] <- s[k] * (1 - alpha + alpha * xi[k + 1])
+
+    exp(lambda * ((xi[1] - 1) + (1 - alpha) * sum(xi[-1] - 1)))
+}
+
+##
+## calculs pour N3
+##
+
+fgpN <- function(t, lambda, alpha) fgpM(rep(t, 3), lambda, alpha)
+fn <- sapply(
+    al, function(a) Re(fft(sapply(e, fgpN, lambda = lam, alpha = a), TRUE))/n
+)
+
+VaR <- function(u, f) k[min(which(cumsum(f) >= u))]
+apply(fn, 2, function(f) VaR(0.9, f))
+
+TVaR <- function(u, f) VaR(u, f) + 1/(1 - u) * sum(pmax(k - VaR(u, f), 0) * f)
+apply(fn, 2, function(f) TVaR(0.9, f))
+
+##
+## calculs pour S3
+##
+
+fb <- c(0, dgeom(k[-n], gam))
+dftb <- fft(fb)
+
+fS3 <- sapply(
+    al, function(a)
+        Re(fft(sapply(dftb, fgpN, lambda = lam, alpha = a), TRUE))/n
+)
+
+apply(fS3, 2, function(f) VaR(0.9, f))
+apply(fS3, 2, function(f) TVaR(0.9, f))
+
+
+###
+### Poisson fait aussi un road trip dans un hub
+###
+
+rm(list = ls())
+
+n <- 2^10; k <- 0:(n - 1); e <- exp(-2i * pi * k/n)
+lam <- 2; al <- c(0, 0.2, 0.5, 0.9); gam <- 1/5
+
+fgpM <- function(s, lambda, alpha)
+{
+    exp(
+        lambda * (1 - alpha) * sum(s[-1] - 1) +
+        lambda * (s[1] * prod(1 - alpha + alpha * s[-1]) - 1)
+    )
+}
+
+VaR <- function(u, f) k[min(which(cumsum(f) >= u))]
+TVaR <- function(u, f) VaR(u, f) + 1/(1 - u) * sum(pmax(k - VaR(u, f), 0) * f)
+
+##
+## calculs pour N5
+##
+
+fgpN <- function(t, lambda, alpha) fgpM(rep(t, 5), lambda, alpha)
+fn <- sapply(
+    al, function(a) Re(fft(sapply(e, fgpN, lambda = lam, alpha = a), TRUE))/n
+)
+apply(fn, 2, function(f) VaR(0.9, f))
+apply(fn, 2, function(f) TVaR(0.9, f))
+
+##
+## calculs pour S5
+##
+
+fb <- c(0, dgeom(k[-n], gam))
+dftb <- fft(fb)
+
+fs <- sapply(
+    al, function(a)
+        Re(fft(sapply(dftb, fgpN, lambda = lam, alpha = a), TRUE))/n
+)
+apply(fs, 2, function(f) VaR(0.9, f))
+apply(fs, 2, function(f) TVaR(0.9, f))
