@@ -298,16 +298,41 @@ TVaR <- function(u, f) VaR(u, f) + 1/(1 - u) * sum(pmax(k - VaR(u, f), 0) * f)
 apply(fn, 2, function(f) TVaR(0.9, f))
 
 ##
-## calculs pour S3
+## calculs pour B
 ##
 
+EspB <- 1/gam
 fb <- c(0, dgeom(k[-n], gam))
 dftb <- fft(fb)
+
+##
+## calculs pour (X1, X2, X3)
+##
+
+CovX <- sapply(
+    al, function(a) c(
+        a^1 * lam * EspB^2, a^2 * lam * EspB^2, a^1 * lam * EspB^2
+    )
+)
+colnames(CovX) <- paste0("alpha = ", al)
+rownames(CovX) <- c("Cov(X1, X2)", "Cov(X1, X3)", "Cov(X2, X3)")
+
+CovX
+
+##
+## calculs pour S3
+##
 
 fS3 <- sapply(
     al, function(a)
         Re(fft(sapply(dftb, fgpN, lambda = lam, alpha = a), TRUE))/n
 )
+
+EspS <- sapply(1:4, function(i) sum(k * fS3[, i]))
+EspS
+
+VarS <- sapply(1:4, function(i) sum((k - sum(k * fS3[, i]))^2 * fS3[, i]))
+VarS
 
 apply(fS3, 2, function(f) VaR(0.9, f))
 apply(fS3, 2, function(f) TVaR(0.9, f))
@@ -355,5 +380,12 @@ fs <- sapply(
     al, function(a)
         Re(fft(sapply(dftb, fgpN, lambda = lam, alpha = a), TRUE))/n
 )
+
+EspS <- sapply(1:4, function(i) sum(k * fs[, i]))
+EspS
+
+VarS <- sapply(1:4, function(i) sum((k - sum(k * fs[, i]))^2 * fs[, i]))
+VarS
+
 apply(fs, 2, function(f) VaR(0.9, f))
 apply(fs, 2, function(f) TVaR(0.9, f))
