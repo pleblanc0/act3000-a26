@@ -269,6 +269,7 @@ rm(list = ls())
 
 n <- 2^10; k <- 0:(n - 1); e <- exp(-2i * pi * k/n)
 lam <- 2; al <- c(0, 0.2, 0.5, 0.9); gam <- 1/5
+v <- c(0, 1, 2, 3, 10, 20, 30, 50, 100)
 
 fgpM <- function(s, lambda, alpha)
 {
@@ -290,6 +291,9 @@ fgpN <- function(t, lambda, alpha) fgpM(rep(t, 3), lambda, alpha)
 fn <- sapply(
     al, function(a) Re(fft(sapply(e, fgpN, lambda = lam, alpha = a), TRUE))/n
 )
+
+Fn <- apply(fn, 2, cumsum)
+Fn[v + 1, ]
 
 VaR <- function(u, f) k[min(which(cumsum(f) >= u))]
 apply(fn, 2, function(f) VaR(0.9, f))
@@ -328,6 +332,9 @@ fS3 <- sapply(
         Re(fft(sapply(dftb, fgpN, lambda = lam, alpha = a), TRUE))/n
 )
 
+Fs3 <- apply(fS3, 2, cumsum)
+Fs3[v + 1, ]
+
 EspS <- sapply(1:4, function(i) sum(k * fS3[, i]))
 EspS
 
@@ -346,6 +353,7 @@ rm(list = ls())
 
 n <- 2^10; k <- 0:(n - 1); e <- exp(-2i * pi * k/n)
 lam <- 2; al <- c(0, 0.2, 0.5, 0.9); gam <- 1/5
+v <- c(0, 1, 2, 3, 10, 20, 30, 50, 100)
 
 fgpM <- function(s, lambda, alpha)
 {
@@ -366,6 +374,10 @@ fgpN <- function(t, lambda, alpha) fgpM(rep(t, 5), lambda, alpha)
 fn <- sapply(
     al, function(a) Re(fft(sapply(e, fgpN, lambda = lam, alpha = a), TRUE))/n
 )
+
+Fn <- apply(fn, 2, cumsum)
+Fn[v + 1, ]
+
 apply(fn, 2, function(f) VaR(0.9, f))
 apply(fn, 2, function(f) TVaR(0.9, f))
 
@@ -380,6 +392,9 @@ fs <- sapply(
     al, function(a)
         Re(fft(sapply(dftb, fgpN, lambda = lam, alpha = a), TRUE))/n
 )
+
+Fs <- apply(fs, 2, cumsum)
+Fs[v + 1, ]
 
 EspS <- sapply(1:4, function(i) sum(k * fs[, i]))
 EspS
