@@ -205,6 +205,9 @@ zapsmall(rowSums(ContriXiReg))[1:10]
 
 rm(list = ls())
 
+q <- 0.4; eta <- 0.1
+gam <- 0.05; b <- 5 + (1:5)
+
 # les 32 configurations possibles
 ij <- as.matrix(expand.grid(rep(list(0:1), 5)))
 nb <- rowSums(ij)
@@ -230,9 +233,6 @@ c(sum(fI), sum(fJ))
 qI <- colSums(ij * fI)
 qJ <- colSums(ij * fJ)
 
-qI
-qJ
-
 # matrices de covariance
 CovI <- crossprod(ij, ij * fI) - outer(qI, qI)
 CovJ <- crossprod(ij, ij * fJ) - outer(qJ, qJ)
@@ -244,18 +244,50 @@ CorJ <- cov2cor(CovJ)
 round(CorI, 1)
 round(CorJ, 1)
 
-# lois de la somme
-fNI <- sapply(0:5, function(k) sum(fI[nb == k]))
-fNJ <- sapply(0:5, function(k) sum(fJ[nb == k]))
+# fmps de la somme
+fm <- sapply(0:5, function(k) sum(fI[nb == k]))
+fn <- sapply(0:5, function(k) sum(fJ[nb == k]))
 
-data.frame(k = 0:5, fNI, fNJ)
+# cdfs de la somme
+Fm <- cumsum(fm)
+Fn <- cumsum(fn)
+
+# stoploss de la somme
+SLM <- function(d) sum(pmax(0:5 - d, 0) * fm)
+SLN <- function(d) sum(pmax(0:5 - d, 0) * fn)
+
+# fmp de la somme, où S = X1 + ... + X5, Xv = bv Iv
+#                     T = Y1 + ... + Y5, Yv = bv Jv
+montants <- as.vector(ij %*% b)
+k <- 0:sum(b)
+
+fs <- sapply(k, function(s) sum(fI[montants == s]))
+all.equal(sum(fs * k), sum(b * qI))
+
+ft <- sapply(k, function(t) sum(fJ[montants == t]))
+all.equal(sum(ft * k), sum(b * qJ))
+
+# cdfs de la somme
+Fs <- cumsum(fs)
+Fn <- cumsum(ft)
+
+# stoploss de la somme
+SLs <- function(d) sum(pmax(k - d, 0) * fs)
+SLt <- function(d) sum(pmax(k - d, 0) * ft)
+
+# Value-at-Risk de la somme
+VaRs <- function(u) k[min(which(Fs >= u))]
+VaRt <- function(u) k[min(which(Fn >= u))]
+c(VaRs(0.9), VaRt(0.9))
+
+# Tail Value-at-Risk de la somme
+TVaRs <- function(u) SLs(VaRs(u))/(1 - u) + VaRs(u)
+TVaRt <- function(u) SLt(VaRt(u))/(1 - u) + VaRt(u)
+c(TVaRs(0.9), TVaRt(0.9))
 
 ##
 ## contributions
 ##
-
-q <- 0.4; eta <- 0.1
-gam <- 0.05; b <- 5 + (1:5)
 
 # espérances
 EspX <- EspY <- b * q
@@ -356,3 +388,7 @@ MarginaleJ(3)
 
 # les 16 probabilités de (Jt, Ju, Jv, Jw)
 MarginaleJ(4)
+
+# dernières vérifications
+all.equal(round(sum((k - sum(fs * k))^2 * fs), 3), sum(CovX))
+all.equal(round(sum((k - sum(ft * k))^2 * ft), 3), sum(CovY))
