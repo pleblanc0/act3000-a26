@@ -60,6 +60,7 @@ Fs <- function(s) sum(
 
 # à continuer...
 
+
 ###
 ### DCM et Poisson bivariée Teicher
 ###
@@ -92,7 +93,7 @@ VarB <- (exp(sig^2) - 1) * exp(2 * mu + sig^2)
 VarX <- EspM * VarB + VarM * EspB^2
 VarS <- sum(VarX) + 2 * CovX12
 
-# Simulation : voir code d'Omar
+# simulation : voir le code d'Omar
 
 # calculs avec FFT + discrétisation
 fb1 <- c(0, diff(plnorm(k, mu[1], sig[1])))
@@ -121,6 +122,7 @@ z <- pmin(k, 120)
 
 EspZ <- sum(z * fs)
 VarZ <- sum((z - EspZ)^2 * fs)
+
 
 ###
 ### DCM et Poisson trivariée Teicher
@@ -199,6 +201,7 @@ ContriXiReg <- sapply(
 )
 zapsmall(rowSums(ContriXiReg))[1:10]
 
+
 ###
 ### Dépendance négative vs dépendance positive
 ###
@@ -213,29 +216,29 @@ ij <- as.matrix(expand.grid(rep(list(0:1), 5)))
 nb <- rowSums(ij)
 
 # probabilités conjointes
-pI <- c(
+pi <- c(
     0.03028222, 0.04729603, 0.04679070,
     0.02345753, 0.00595927, 0.00095896
 )
 
-pJ <- c(
+pj <- c(
     0.13387963, 0.04828479, 0.02807253,
     0.02104835, 0.02035259, 0.03172465
 )
 
-fI <- pI[nb + 1]
-fJ <- pJ[nb + 1]
+fi <- pi[nb + 1]
+fj <- pj[nb + 1]
 
 # vérification des masses totales
-c(sum(fI), sum(fJ))
+c(sum(fi), sum(fj))
 
 # probabilités marginales
-qI <- colSums(ij * fI)
-qJ <- colSums(ij * fJ)
+qi <- colSums(ij * fi)
+qj <- colSums(ij * fj)
 
 # matrices de covariance
-CovI <- crossprod(ij, ij * fI) - outer(qI, qI)
-CovJ <- crossprod(ij, ij * fJ) - outer(qJ, qJ)
+CovI <- crossprod(ij, ij * fi) - outer(qi, qi)
+CovJ <- crossprod(ij, ij * fj) - outer(qj, qj)
 
 # matrices de corrélation
 CorI <- cov2cor(CovI)
@@ -245,8 +248,8 @@ round(CorI, 1)
 round(CorJ, 1)
 
 # fmps de la somme
-fm <- sapply(0:5, function(k) sum(fI[nb == k]))
-fn <- sapply(0:5, function(k) sum(fJ[nb == k]))
+fm <- sapply(0:5, function(k) sum(fi[nb == k]))
+fn <- sapply(0:5, function(k) sum(fj[nb == k]))
 
 # cdfs de la somme
 Fm <- cumsum(fm)
@@ -261,11 +264,11 @@ SLN <- function(d) sum(pmax(0:5 - d, 0) * fn)
 montants <- as.vector(ij %*% b)
 k <- 0:sum(b)
 
-fs <- sapply(k, function(s) sum(fI[montants == s]))
-all.equal(sum(fs * k), sum(b * qI))
+fs <- sapply(k, function(s) sum(fi[montants == s]))
+all.equal(sum(fs * k), sum(b * qi))
 
-ft <- sapply(k, function(t) sum(fJ[montants == t]))
-all.equal(sum(ft * k), sum(b * qJ))
+ft <- sapply(k, function(t) sum(fj[montants == t]))
+all.equal(sum(ft * k), sum(b * qj))
 
 # cdfs de la somme
 Fs <- cumsum(fs)
@@ -306,10 +309,10 @@ Allocation <- function(n, Esp, Cov)
 {
     V <- Cov[1:n, 1:n, drop = FALSE]
 
-    ES <- sum(Esp[1:n])
-    VS <- sum(V)
+    EspS <- sum(Esp[1:n])
+    VarS <- sum(V)
 
-    phi <- ES + gam/2 * VS
+    phi <- EspS + gam/2 * VarS
     contributions <- Esp[1:n] + gam/2 * rowSums(V)
     
     list(
@@ -349,7 +352,7 @@ MarginaleI <- function(d)
     j <- 0:(5 - d)
 
     probabilites <- sapply(
-        k, function(r) sum(choose(5 - d, j) * pI[r + j + 1])
+        k, function(r) sum(choose(5 - d, j) * pi[r + j + 1])
     )
 
     data.frame(configurations, probabilite = probabilites)
@@ -374,7 +377,7 @@ MarginaleJ <- function(d)
     j <- 0:(5 - d)
 
     probabilites <- sapply(
-        k, function(r) sum(choose(5 - d, j) * pJ[r + j + 1])
+        k, function(r) sum(choose(5 - d, j) * pj[r + j + 1])
     )
 
     data.frame(configurations, probabilite = probabilites)
