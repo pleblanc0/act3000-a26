@@ -295,14 +295,21 @@ c(TVaRs(0.9), TVaRt(0.9))
 # espérances
 EspX <- EspY <- b * q
 
-# matrices de covariance
+# matrices de corrélation
 CorI <- matrix(-eta, 5, 5)
 CorJ <- matrix( eta, 5, 5)
 diag(CorI) <- diag(CorJ) <- 1
 
-# covariances
-CovX <- q * (1 - q) * outer(b, b) * CorI
-CovY <- q * (1 - q) * outer(b, b) * CorJ
+# matrices de covariance
+CovI <- q * (1 - q) * CorI
+CovJ <- q * (1 - q) * CorJ
+
+CovX <- CovI * outer(b, b) 
+CovY <- CovJ * outer(b, b)
+
+# alternative : calculer directement les covariances
+#           CovX <- q * (1 - q) * outer(b, b) * CorI
+#           CovY <- q * (1 - q) * outer(b, b) * CorJ
 
 # contributions 
 Allocation <- function(n, Esp, Cov)
