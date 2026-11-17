@@ -377,6 +377,8 @@ fn
 ### Distribution discrète et simulation
 ###
 
+rm(list = ls())
+
 m <- seq(0, 5)
 
 Fm1m2 <- matrix(
@@ -443,10 +445,10 @@ rowSums(fm2cm1)
 Fm2cm1 <- t(apply(fm2cm1, 1, cumsum))
 
 ## 9)
-EspM1cM2 <- function(m2) sum(mm * fm1cm2[, m2 + 1])
+EspM1cM2 <- function(m2) sum(m * fm1cm2[, m2 + 1])
 
 ## 10)
-EspM2cM1 <- function(m1) sum(mm * fm2cm1[m1 + 1, ])
+EspM2cM1 <- function(m1) sum(m * fm2cm1[m1 + 1, ])
 
 ## 11)
 V1 <- c(0.334, 0.952, 0.016, 0.781)
