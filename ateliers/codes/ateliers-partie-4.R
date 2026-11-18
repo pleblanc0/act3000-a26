@@ -28,8 +28,8 @@ fm1 <- rowSums(fm1m2)
 fm2 <- colSums(fm1m2)
 
 # répartition des lois composées marginales
-Fx1 <- function(x) sum(fm1 * pgamma(x, al[1], be))
-Fx2 <- function(x) sum(fm2 * pgamma(x, al[2], be))
+Fx1 <- function(x) sum(fm1 * pgamma(x, al[1] * m, be))
+Fx2 <- function(x) sum(fm2 * pgamma(x, al[2] * m, be))
 
 # espérances
 EspM <- c(sum(fm1 * m), sum(fm2 * m))
@@ -55,7 +55,7 @@ Fx1x2 <- function(x1, x2) sum(
 
 # répartition de la somme
 Fs <- function(s) sum(
-    fm1m2 * pgamma(s, al[1] * m + al[2] * m, be)
+    fm1m2 * pgamma(s, outer(al[1] * m, al[2] * m, '+'), be)
 )
 
 # à continuer...
@@ -186,7 +186,6 @@ TVaR <- function(u) sum(pmax(k - VaR(u), 0) * fs)/(1 - u) + VaR(u)
 TVaR(0.95)
 
 # contributions à l'écart-type de S
-# Cov(Xi, S)/Var(S) = (Var(Xi) + sum_{j != i} Cov(Xi, Xj))/Var(S)
 ContrXiSd <- 1/sqrt(VarS) * c(
     VarX[1] + CovX12 + CovX13,
     VarX[2] + CovX12 + CovX23,
@@ -272,7 +271,7 @@ all.equal(sum(ft * k), sum(b * qj))
 
 # cdfs de la somme
 Fs <- cumsum(fs)
-Fn <- cumsum(ft)
+Ft <- cumsum(ft)
 
 # stoploss de la somme
 SLs <- function(d) sum(pmax(k - d, 0) * fs)
@@ -280,7 +279,7 @@ SLt <- function(d) sum(pmax(k - d, 0) * ft)
 
 # Value-at-Risk de la somme
 VaRs <- function(u) k[min(which(Fs >= u))]
-VaRt <- function(u) k[min(which(Fn >= u))]
+VaRt <- function(u) k[min(which(Ft >= u))]
 c(VaRs(0.9), VaRt(0.9))
 
 # Tail Value-at-Risk de la somme
