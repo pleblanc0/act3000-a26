@@ -46,6 +46,40 @@ Cfgm2c1.inv <- function(u, v, theta)
     ifelse(v == 0, 0, 2 * v/(1 + a + sqrt(delta)))
 }
 
+# Quantile conditionnel de U2 sachant U1 = u pour la copule FGM
+Cfgm2c1.inv.details <- function(u, v, theta)
+{
+    # 1. on cherche le quantile x, c'est-à-dire la valeur qui vérifie
+    #    v = x + theta * (1 - 2*u) * x * (1 - x). On pose a = theta * (1 - 2*u)
+    a <- theta * (1 - 2 * u)
+
+    # 2. on transforme l'équation en une équation quadratique.
+    #    v = x + a * x * (1 - x) = x + a * x - a * x^2 = (1 + a) * x - a * x^2
+    #    donc a * x^2 - (1 + a) * x + v = 0.
+    #    on a que  A = a, B = -(1 + a) et C = v et delta = B^2 - 4 * A * C.
+    delta <- (1 + a)^2 - 4 * a * v
+
+    # 3. pour a =! 0, la formule quadratique donne deux racines.
+    #    la racine dans [0, 1] est x = (1 + a - sqrt(delta)) / (2 * a).
+    #    pour voir pourquoi on prend le signe moins, on remarque que
+    #    delta = (1 + a - 2*a*x)^2. Comme |a| <= 1 et 0 <= x <= 1,
+    #    1 + a - 2*a*x = 1 + a*(1 - 2*x) >= 0.
+    #    donc sqrt(delta) = 1 + a - 2 * a * x.
+
+    # 4. on simplifie la racine en multipliant le numérateur et
+    #    le dénominateur par le conjugué : 1 + a + sqrt(delta).
+    #    au numérateur, on obtient une différence de carrés :
+    #    (1 + a - sqrt(delta)) * (1 + a + sqrt(delta))
+    #    ce qui devient (1 + a)^2 - delta = 4 * a * v.
+    #    en simplifiant par 2 * a, il reste x = 2 * v/(1 + a + sqrt(delta)).
+    denom <- 1 + a + sqrt(delta)
+
+    # 5. Si a = 0, la formule donne déjà x = 2*v/2 = v.
+    #    Si v = 0, le quantile vaut 0. On le retourne directement
+    #    pour éviter la division 0/0 lorsque a = -1 et v = 0.
+    ifelse(v == 0, 0, 2 * v / denom)
+}
+
 # expression équivalente de la fonction précédente, mais plus longue
 Cfgm2c1.inv.long <- function(u, v, theta)
 {
@@ -71,7 +105,7 @@ Fx2c1.inv <- function(x2, x1, theta) Qx(Cfgm2c1.inv(Fx(x1), Fx(x2), theta))
 ### Simulation avec copule conditionnelle
 ###
 
-rm(list = ls())
+rm(list = ls()) 
 
 # paramètres de la copule FGM
 theta <- c(-0.9, 0, 0.9)
@@ -79,7 +113,7 @@ theta <- c(-0.9, 0, 0.9)
 # paramètres pour la simulation
 n <- 5000; j <- c(1, 2, n)
 
-# inverse conditionnelle de la copule FGM, selon les trois cas de (14)
+# inverse conditionnelle de la copule FGM
 Cfgm2c1.inv <- function(u, v, theta)
 {
     a <- theta * (1 - 2 * u)
