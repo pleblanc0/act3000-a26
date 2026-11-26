@@ -28,8 +28,8 @@ fm1 <- rowSums(fm1m2)
 fm2 <- colSums(fm1m2)
 
 # répartition des lois composées marginales
-Fx1 <- function(x) sum(fm1 * pgamma(x, al[1] * m, be))
-Fx2 <- function(x) sum(fm2 * pgamma(x, al[2] * m, be))
+Fx1 <- function(x) fm1[1] + sum(fm1[-1] * pgamma(x, al[1] * m[-1], be))
+Fx2 <- function(x) fm2[1] + sum(fm2[-1] * pgamma(x, al[2] * m[-1], be))
 
 # espérances
 EspM <- c(sum(fm1 * m), sum(fm2 * m))
