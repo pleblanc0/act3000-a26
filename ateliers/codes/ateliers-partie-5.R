@@ -169,6 +169,7 @@ al <- 2.5; lam <- 15; be <- 0.1
 # simulation des variables aléatoires X1 et X2 à partir de U1 et U2
 X1 <- lam * ((1 - U1)^(-1/al) - 1)
 X2 <- -log(1 - U2)/be
+# X2 <- lam * ((1 - U2)^(-1/al) - 1)
 
 # vérification de la simulation pour les trois valeurs de theta
 data.frame(
@@ -202,3 +203,72 @@ par(mfrow = c(1, 3), mar = c(4, 4, 2, 1))
 plot(U, U, main = 'Copule borne sup. de Fréchet', xlab = 'U', ylab = 'V')
 plot(U, 1 - U, main = 'Copule borne inf. de Fréchet', xlab = 'U', ylab = 'V')
 plot(U, V, main = 'Copule indépendance', xlab = 'U', ylab = 'V')
+
+###
+### Copule FGM avec marginales Poisson
+###
+
+lam <- c(2, 3); n <- 2^10; k <- 0:(n - 1)
+Fm1 <- ppois(k, lam[1])
+Fm2 <- ppois(k, lam[2])
+
+theta <- -0.9
+C.fgm <- function(u, v) u * v + theta * u * v * (1 - u) * (1 - v)
+
+# F(10, 12)
+C.fgm(Fm1[1 + 1], Fm2[2 + 1])
+C.fgm(Fm1[0 + 1], Fm2[0 + 1])
+
+###
+### Question 3 - Final informatique 2015
+###
+
+rm(list = ls())
+
+m <- 100; k <- 0:m; s <- 0:(2 * m); al <- 10
+
+C.clayton <- function(u, v) (u^(-al) + v^(-al) - 1)^(-1/al)
+
+# (a) Paramètres de log(X1) et de log(X2)
+mu <- log(c(30, 20)) + c(0.06, 0.05)
+sig <- c(0.2, 0.25)
+
+# (b) Fonctions de répartition (limite du support à x = 100)
+Fx1 <- function(x) ifelse(x >= m, 1, plnorm(x, mu[1], sig[1]))
+Fx2 <- function(x) ifelse(x >= m, 1, plnorm(x, mu[2], sig[2]))
+
+Fx1x2 <- function(x1, x2) C.clayton(Fx1(x1), Fx2(x2))
+
+fx1x2 <- function(x1, x2) (
+    Fx1x2(x1, x2) - Fx1x2(x1 - 1, x2) -
+    Fx1x2(x1, x2 - 1) + Fx1x2(x1 - 1, x2 - 1)
+)
+fx1x2.valeurs <- outer(k, k, fx1x2)
+
+fx1x2(30, 20)
+fx1x2(35, 25)
+fx1x2(25, 15)
+
+# (c) Loi de la somme
+fs <- sapply(s, function(j) sum(fx1x2.valeurs[outer(k, k, '+') == j]))
+Fs <- cumsum(fs)
+
+# (d) Fonction de répartition de la somme
+Fs[c(40, 60, 70) + 1]
+Fs[50 + 1]
+
+# (e) Espérances continue et discrétisée
+EspS <- sum(exp(mu + sig^2 / 2))
+EspS.disc <- sum(s * fs)
+
+EspS
+EspS.disc
+EspS.disc - EspS
+
+# (f) VaR de la somme discrétisée
+VaR <- function(p) s[min(which(Fs >= p))]
+sapply(c(0.01, 0.05, 0.95, 0.99), function(p) VaR(p))
+
+# (g) TVaR de la somme discrétisée
+TVaR <- function(p) VaR(p) + sum(pmax(s - VaR(p), 0) * fs) / (1 - p)
+TVaR(0.95)
